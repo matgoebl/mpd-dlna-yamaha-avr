@@ -46,7 +46,7 @@ def run_daemon(mpd_host, yamaha_host, max_volume_db, surround_program):
 
     while True:
         try:
-            logging.info(f"RXV Status: {rx.basic_status} Player: {rx.play_status()}")
+            logging.info(f"RXV Status: {rx.basic_status} Player: {rx.play_status()}. Now waiting for MPD event...")
 
             event = client.idle("player","mixer","output")
             new_state = client.status()["state"]
