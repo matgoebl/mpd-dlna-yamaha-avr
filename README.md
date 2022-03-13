@@ -30,11 +30,13 @@ So I looked for an alternative solution.
 
 I should tell, that I already used MPD about 15 years ago, running on a [NSLU2](https://en.wikipedia.org/wiki/NSLU2).
 The NSLU2 is a linux-powered embedded device, like a Raspberry PI, but introduced several years before.
-The NSLU2 was sitting on top the receiver, run the MPD, played via an USB audio adapter to
-a receiver. To control the volume I [patched LIRC](https://github.com/torvalds/linux/commit/1beef3c1c6af76895411691d08630757243984d0#diff-b4b2579a39af489dcd4882e4a81d86b9be2ae466e6784391f52c422b99d57f9eR198)
-to allow infrared sending and receiving (has been [removed](https://github.com/torvalds/linux/commit/3746cfb684cdd9cce843e914012ec56e7064dbe2#diff-2540f7f74f47bef4743f788b7e8570948a2902d971cec119ce6cbf9d9e30332bL202) since then.
+The NSLU2 was sitting on top the receiver, running the MPD, played via an USB audio adapter to
+the receiver.
+I [patched LIRC](https://github.com/torvalds/linux/commit/1beef3c1c6af76895411691d08630757243984d0#diff-b4b2579a39af489dcd4882e4a81d86b9be2ae466e6784391f52c422b99d57f9eR198)
+(has been [removed](https://github.com/torvalds/linux/commit/3746cfb684cdd9cce843e914012ec56e7064dbe2#diff-2540f7f74f47bef4743f788b7e8570948a2902d971cec119ce6cbf9d9e30332bL202) since then)
+to allow infrared sending and receiving from the NSLU2 with [little additional hardware](https://web.archive.org/web/20130131110958/http://www.nslu2-linux.org/wiki/HowTo/AddAnInfraredReceiverAndTransmitterWithLIRC) connected to its [GPIOs](https://web.archive.org/web/20130131105936/http://www.nslu2-linux.org/wiki/HowTo/AddASimpleTenPinConnector).
 I powered on the receiver, switched source and controlled volume by automatically sending infrated commands to the receiver.
-I also attached an HD44780 display via [I2C and LCDproc](https://github.com/lcdproc/lcdproc/blob/master/server/drivers/hd44780-i2c.c) to the NSLU2 to display current track information.
+I also attached an [HD44780 display via I2C](https://web.archive.org/web/20130131110109/http://www.nslu2-linux.org/wiki/HowTo/AddATextDisplayOnI2CWithLCDproc) using a [patched LCDproc](https://github.com/lcdproc/lcdproc/blob/master/server/drivers/hd44780-i2c.c) to the NSLU2 to display current track information.
 
 
 ### Solution
