@@ -29,7 +29,7 @@ So I looked for an alternative solution.
 
 ### My MPD History
 
-I should tell, that I already used MPD in the year 2006, running on a [NSLU2](https://en.wikipedia.org/wiki/NSLU2).
+I should tell, that I already used MPD in the year 2005, running on a [NSLU2](https://en.wikipedia.org/wiki/NSLU2).
 The NSLU2 is a linux-powered embedded device introduced in 2004, an ancestor of the Raspberry PI.
 I installed MPD on the NSLU2 and played music using a USB audio adapter connected to the receiver.
 I [patched LIRC](https://github.com/torvalds/linux/commit/1beef3c1c6af76895411691d08630757243984d0#diff-b4b2579a39af489dcd4882e4a81d86b9be2ae466e6784391f52c422b99d57f9eR198)
