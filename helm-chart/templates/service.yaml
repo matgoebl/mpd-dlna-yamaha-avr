@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mpd-dlna-yamaha-avr.fullname" . }}
+  labels:
+    {{- include "mpd-dlna-yamaha-avr.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: mpd
+      protocol: TCP
+      name: mpd
+    - port: {{ .Values.service.streamport }}
+      targetPort: stream
+      protocol: TCP
+      name: stream
+  selector:
+    {{- include "mpd-dlna-yamaha-avr.selectorLabels" . | nindent 4 }}
