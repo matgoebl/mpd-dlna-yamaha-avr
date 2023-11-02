@@ -14,13 +14,20 @@ spec:
       template:
         spec:
           restartPolicy: Never
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          serviceAccountName: {{ include "mpd-dlna-yamaha-avr.serviceAccountName" . }}
+          securityContext:
+            {{- toYaml .Values.podSecurityContext | nindent 12 }}
           containers:
           - name: mpd-rescan
+            securityContext:
+              {{- toYaml .Values.securityContext | nindent 14 }}
             image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
             imagePullPolicy: {{ .Values.image.pullPolicy }}
-            command:
-            - /usr/bin/mpc
-            - rescan
+            command: ["/usr/bin/mpc", "rescan"]
             env:
             - name: MPD_HOST
               value: {{ include "mpd-dlna-yamaha-avr.fullname" . | quote }}
