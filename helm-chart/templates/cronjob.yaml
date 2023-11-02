@@ -1,0 +1,29 @@
+{{- if .Values.rescan.enabled -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mpd-rescan
+  labels:
+    {{- include "mpd-dlna-yamaha-avr.labels" . | nindent 4 }}
+spec:
+  schedule: "{{ .Values.rescan.minute }} {{ .Values.rescan.hour }} * * *"
+  concurrencyPolicy: Replace
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 36000
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: mpd-rescan
+            image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            command:
+            - /usr/bin/mpc
+            - rescan
+            env:
+            - name: MPD_HOST
+              value: {{ include "mpd-dlna-yamaha-avr.fullname" . | quote }}
+            - name: MPD_PORT
+              value: {{ .Values.service.port | quote }}
+{{- end }}
