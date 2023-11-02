@@ -71,15 +71,10 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            - name: data
-              mountPath: "/var/log/mpd/data"
-              readOnly: false
             - name: music
               mountPath: "/var/lib/mpd/music"
               readOnly: true
       volumes:
-        - name: data
-          emptyDir: {}
         - name: music
 {{- if .Values.mpd.persistentVolumeClaimName }}
           persistentVolumeClaim:
