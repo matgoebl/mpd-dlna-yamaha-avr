@@ -4,11 +4,11 @@ on:
     types:
       - closed
     branches:
-      - master
+      - main
 
   push:
     branches-ignore:
-      - master
+      - main
 
 
 env:
