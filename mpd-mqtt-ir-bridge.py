@@ -56,6 +56,8 @@ def on_connect(mqtt_client, userdata, flags, result):
 def hifi_off():
     logging.info(f"TASK: switching hifi off")
     irsend(mqtt_client,IRCmd.Off)
+    mqtt_client.loop()
+    time.sleep(2)
 
 def hifi_on(poweron_volume = POWERON_VOLUME):
     logging.info(f"TASK: switching hifi on with volume {poweron_volume}")
