@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: mpd-rescan
+  name: {{ include "mpd-pulseaudio-mqtt-ir.fullname" . }}-rescan
   labels:
     {{- include "mpd-pulseaudio-mqtt-ir.labels" . | nindent 4 }}
 spec:
