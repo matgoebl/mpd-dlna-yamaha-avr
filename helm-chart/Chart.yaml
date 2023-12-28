@@ -1,6 +1,6 @@
 apiVersion: v2
-name: mpd-dlna-yamaha-avr
-description: A Helm chart for MPD-DLNA-Yamaha-AVR
+name: mpd-pulseaudio-mqtt-ir
+description: A Helm chart for mpd-pulseaudio-mqtt-ir
 type: application
 version: 1.0.0
 appVersion: "1.0.0"

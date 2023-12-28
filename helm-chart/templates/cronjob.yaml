@@ -4,7 +4,7 @@ kind: CronJob
 metadata:
   name: mpd-rescan
   labels:
-    {{- include "mpd-dlna-yamaha-avr.labels" . | nindent 4 }}
+    {{- include "mpd-pulseaudio-mqtt-ir.labels" . | nindent 4 }}
 spec:
   schedule: "{{ .Values.rescan.minute }} {{ .Values.rescan.hour }} * * *"
   concurrencyPolicy: Replace
@@ -18,7 +18,7 @@ spec:
           imagePullSecrets:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          serviceAccountName: {{ include "mpd-dlna-yamaha-avr.serviceAccountName" . }}
+          serviceAccountName: {{ include "mpd-pulseaudio-mqtt-ir.serviceAccountName" . }}
           securityContext:
             {{- toYaml .Values.podSecurityContext | nindent 12 }}
           containers:
@@ -30,7 +30,7 @@ spec:
             command: ["/usr/bin/mpc", "rescan"]
             env:
             - name: MPD_HOST
-              value: {{ include "mpd-dlna-yamaha-avr.fullname" . | quote }}
+              value: {{ include "mpd-pulseaudio-mqtt-ir.fullname" . | quote }}
             - name: MPD_PORT
               value: {{ .Values.service.port | quote }}
 {{- end }}

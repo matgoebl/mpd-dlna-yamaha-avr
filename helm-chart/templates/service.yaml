@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "mpd-dlna-yamaha-avr.fullname" . }}
+  name: {{ include "mpd-pulseaudio-mqtt-ir.fullname" . }}
   labels:
-    {{- include "mpd-dlna-yamaha-avr.labels" . | nindent 4 }}
+    {{- include "mpd-pulseaudio-mqtt-ir.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -11,9 +11,5 @@ spec:
       targetPort: mpd
       protocol: TCP
       name: mpd
-    - port: {{ .Values.service.streamport }}
-      targetPort: stream
-      protocol: TCP
-      name: stream
   selector:
-    {{- include "mpd-dlna-yamaha-avr.selectorLabels" . | nindent 4 }}
+    {{- include "mpd-pulseaudio-mqtt-ir.selectorLabels" . | nindent 4 }}

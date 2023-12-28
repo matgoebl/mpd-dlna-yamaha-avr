@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "mpd-dlna-yamaha-avr.name" -}}
+{{- define "mpd-pulseaudio-mqtt-ir.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "mpd-dlna-yamaha-avr.fullname" -}}
+{{- define "mpd-pulseaudio-mqtt-ir.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "mpd-dlna-yamaha-avr.chart" -}}
+{{- define "mpd-pulseaudio-mqtt-ir.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "mpd-dlna-yamaha-avr.labels" -}}
-helm.sh/chart: {{ include "mpd-dlna-yamaha-avr.chart" . }}
-{{ include "mpd-dlna-yamaha-avr.selectorLabels" . }}
+{{- define "mpd-pulseaudio-mqtt-ir.labels" -}}
+helm.sh/chart: {{ include "mpd-pulseaudio-mqtt-ir.chart" . }}
+{{ include "mpd-pulseaudio-mqtt-ir.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,17 +45,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "mpd-dlna-yamaha-avr.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "mpd-dlna-yamaha-avr.name" . }}
+{{- define "mpd-pulseaudio-mqtt-ir.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "mpd-pulseaudio-mqtt-ir.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "mpd-dlna-yamaha-avr.serviceAccountName" -}}
+{{- define "mpd-pulseaudio-mqtt-ir.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "mpd-dlna-yamaha-avr.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "mpd-pulseaudio-mqtt-ir.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}

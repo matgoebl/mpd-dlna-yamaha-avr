@@ -1,4 +1,4 @@
-# Default values for mpd-dlna-yamaha-avr.
+# Default values for mpd-pulseaudio-mqtt-ir.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -39,16 +39,15 @@ securityContext:
 service:
   type: LoadBalancer
   port: 6600                          # External port of Music Player Daemon for clients.
-  streamport: 6601                    # External port of Music Player Stream, that is sent to yamaha receiver for playback.
-  streamhostExternal: "127.0.0.1"     # External hostname/IP of Music Player Stream, that is sent to yamaha receiver for playback.
 
 mpd:
   persistentVolumeClaimName: ""       # Mount persistentVolumeClaim as music directory, playlists are expected as playlists/ subfolder there.
+  pulse_server: ""
+  pulse_sink: ""
 
-yamaha:
-  host: "127.0.0.1"                   # Hostname/IP of Yamaha AVR Receiver.
-  maxVolumeDb: "60"                   # Maximum AVR volume in dB for mpd volume of 100%.
-  surroundProgram: "Straight"         # Surround program to be set when switching to DLNA playback.
+irbridge:
+  mqtt_config: ""
+  poweron_volume: "16"
 
 rescan:
   enabled: true

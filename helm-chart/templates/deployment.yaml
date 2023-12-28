@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "mpd-dlna-yamaha-avr.fullname" . }}
+  name: {{ include "mpd-pulseaudio-mqtt-ir.fullname" . }}
   labels:
-    {{- include "mpd-dlna-yamaha-avr.labels" . | nindent 4 }}
+    {{- include "mpd-pulseaudio-mqtt-ir.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "mpd-dlna-yamaha-avr.selectorLabels" . | nindent 6 }}
+      {{- include "mpd-pulseaudio-mqtt-ir.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -16,13 +16,13 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "mpd-dlna-yamaha-avr.selectorLabels" . | nindent 8 }}
+        {{- include "mpd-pulseaudio-mqtt-ir.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "mpd-dlna-yamaha-avr.serviceAccountName" . }}
+      serviceAccountName: {{ include "mpd-pulseaudio-mqtt-ir.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -31,22 +31,18 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["/usr/bin/mpd-dlna-yamaha-avr.py"]
+          command: ["/usr/bin/mpd-mqtt-ir-bridge.py"]
           env:
           - name: MPD_HOST
             value: "127.0.0.1"
           - name: MPD_PORT
             value: "6600"
-          - name: MPD_STREAM_HOSTPORT
-            value: "{{ .Values.service.streamhostExternal }}:{{ .Values.service.streamport }}"
-          - name: YAMAHA_HOST
-            value: {{ .Values.yamaha.host | quote }}
           - name: VERBOSE
             value: "1"
-          - name: MAX_VOLUME_DB
-            value: {{ .Values.yamaha.maxVolumeDb | quote }}
-          - name: SURROUND_PROGRAM
-            value: {{ .Values.yamaha.surroundProgram | quote }}
+          - name: POWERON_VOLUME
+            value: {{ .Values.irbridge.poweron_volume | quote }}
+          - name: MQTT_CONFIG
+            value: {{ .Values.irbridge.mqtt_config | quote }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
         - name: mpd
@@ -55,12 +51,14 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/usr/bin/mpd", "--no-daemon", "--stdout"]
+          env:
+          - name: PULSE_SERVER
+            value: {{ .Values.mpd.pulse_server | quote }}
+          - name: PULSE_SINK
+            value: {{ .Values.mpd.pulse_sink | quote }}
           ports:
             - name: mpd
               containerPort: 6600
-              protocol: TCP
-            - name: stream
-              containerPort: 6601
               protocol: TCP
           livenessProbe:
             tcpSocket:
