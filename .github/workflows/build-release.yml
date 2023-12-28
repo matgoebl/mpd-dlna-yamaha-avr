@@ -89,7 +89,7 @@ jobs:
       - name: Create helm chart
         run: |
           helm package --version $VERSIONNUM --app-version $VERSIONNUM helm-chart/
-          mv mpd-dlna-yamaha-avr-*.tgz mpd-dlna-yamaha-avr--helm-chart.tgz
+          mv mpd-pulseaudio-mqtt-ir-*.tgz mpd-pulseaudio-mqtt-ir--helm-chart.tgz
 
       - name: Create release
         uses: "marvinpinto/action-automatic-releases@d68defdd11f9dcc7f52f35c1b7c236ee7513bcc1"
@@ -99,4 +99,4 @@ jobs:
           automatic_release_tag: v${{ env.VERSIONNUM }}
           title: ${{ env.BUILD }} ${{ env.VERSIONNUM }}
           files: |
-            mpd-dlna-yamaha-avr--helm-chart.tgz
+            mpd-pulseaudio-mqtt-ir--helm-chart.tgz
