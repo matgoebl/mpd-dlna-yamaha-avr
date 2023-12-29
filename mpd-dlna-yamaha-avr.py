@@ -84,8 +84,7 @@ def run_daemon(mpd_host, mpd_stream_hostport, yamaha_host, max_volume_db, surrou
                         logging.info(f"Starting stream on player...")
                         nanodlna.dlna.play({"file_video": mpd_stream_url}, dlna_device)
 
-
-                    if new_state == "stop" and (rx.on and rx.input == 'SERVER'):
+                    elif rx.on and rx.input == 'SERVER':
                         logging.info(f"Shutting down player...")
                         rx.on = False
 
