@@ -152,8 +152,8 @@ def run_daemon(mpd_host, poweron_volume, mqtt_config):
                     if new_state == "play":
                         logging.info(f"Waking up player...")
                         hifi_on(poweron_volume)
-
-                    if new_state == "stop":
+                    # if new_state == "stop" or new_state == "pause":
+                    else:
                         logging.info(f"Shutting down player...")
                         hifi_off()
 
