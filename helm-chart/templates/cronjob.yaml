@@ -22,7 +22,7 @@ spec:
           securityContext:
             {{- toYaml .Values.podSecurityContext | nindent 12 }}
           containers:
-          - name: mpd-rescan
+          - name: mpd-rescan--{{ include "mpd-dlna-yamaha-avr.fullname" . }}
             securityContext:
               {{- toYaml .Values.securityContext | nindent 14 }}
             image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
