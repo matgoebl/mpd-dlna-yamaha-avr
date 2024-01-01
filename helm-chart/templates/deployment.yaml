@@ -22,11 +22,12 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      automountServiceAccountToken: {{ .Values.serviceAccount.automountToken }}
       serviceAccountName: {{ include "mpd-dlna-yamaha-avr.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: dlna-yamaha-avr
+        - name: dlna-yamaha-avr--{{ include "mpd-dlna-yamaha-avr.fullname" . }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -49,7 +50,7 @@ spec:
             value: {{ .Values.yamaha.surroundProgram | quote }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-        - name: mpd
+        - name: mpd--{{ include "mpd-dlna-yamaha-avr.fullname" . }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
