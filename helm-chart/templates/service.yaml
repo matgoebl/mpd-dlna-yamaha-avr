@@ -12,8 +12,12 @@ spec:
       protocol: TCP
       name: mpd
     - port: {{ .Values.service.streamport }}
-      targetPort: stream
+      targetPort: snap-stream
       protocol: TCP
       name: stream
+    - port: {{ .Values.service.controlport }}
+      targetPort: snap-control
+      protocol: TCP
+      name: control
   selector:
     {{- include "mpd-dlna-yamaha-avr.selectorLabels" . | nindent 4 }}

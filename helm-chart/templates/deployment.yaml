@@ -27,12 +27,34 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
+        - name: snapserver--{{ include "mpd-dlna-yamaha-avr.fullname" . }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /usr/bin/snapserver
+            - --config=/dev/null
+            - --server.datadir=/var/lib/snapserver
+            - --stream.source=pipe:///var/lib/snapserver/snapfifo?name=default
+          ports:
+            - name: snap-stream
+              containerPort: 1704
+              protocol: TCP
+            - name: snap-control
+              containerPort: 1705
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/lib/snapserver
+              name: snapdata
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
         - name: dlna-yamaha-avr--{{ include "mpd-dlna-yamaha-avr.fullname" . }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["/usr/bin/mpd-dlna-yamaha-avr.py"]
+          command: ["/usr/bin/mpd-control-bridge.py"]
           env:
           - name: MPD_HOST
             value: "127.0.0.1"
@@ -60,9 +82,6 @@ spec:
             - name: mpd
               containerPort: 6600
               protocol: TCP
-            - name: stream
-              containerPort: 6601
-              protocol: TCP
           livenessProbe:
             tcpSocket:
               port: mpd
@@ -75,7 +94,12 @@ spec:
             - name: music
               mountPath: "/var/lib/mpd/music"
               readOnly: true
+            - name: snapdata
+              mountPath: /var/lib/snapserver
       volumes:
+        - name: snapdata
+          emptyDir:
+            sizeLimit: 1Gi
         - name: music
 {{- if .Values.mpd.persistentVolumeClaimName }}
           persistentVolumeClaim:
