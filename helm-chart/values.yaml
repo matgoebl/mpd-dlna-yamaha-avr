@@ -9,7 +9,7 @@ image:
   tag: ""
 
 imagePullSecrets: []
-nameOverride: ""
+nameOverride: "mpd-snapcast"
 fullnameOverride: ""
 
 serviceAccount:
@@ -43,8 +43,8 @@ securityContext:
 service:
   type: LoadBalancer
   port: 6600                          # External port of Music Player Daemon for clients.
-  streamport: 6601                    # External port of Music Player Stream, that is sent to yamaha receiver for playback.
-  streamhostExternal: "127.0.0.1"     # External hostname/IP of Music Player Stream, that is sent to yamaha receiver for playback.
+  streamport: 6601                    # External port of SNAP Stream
+  controlport: 6602                   # External port of SNAP Control
 
 mpd:
   persistentVolumeClaimName: ""       # Mount persistentVolumeClaim as music directory, playlists are expected as playlists/ subfolder there.
