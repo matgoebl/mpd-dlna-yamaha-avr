@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: mpd-rescan
+  name: mpd-rescan--{{ include "mpd-dlna-yamaha-avr.fullname" . }}
   labels:
     {{- include "mpd-dlna-yamaha-avr.labels" . | nindent 4 }}
 spec:
