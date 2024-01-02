@@ -1,5 +1,5 @@
 VENV=.venv
-PYTHON_MODULES=python-musicpd git+https://github.com/wuub/rxv.git git+https://github.com/matgoebl/nano-dlna.git@dev
+PYTHON_MODULES=python-musicpd paho-mqtt
 
 NAMESPACE=default
 
@@ -8,15 +8,15 @@ all: install
 
 install:
 	virtualenv $(VENV) --python=python3 && . $(VENV)/bin/activate && pip3 install $(PYTHON_MODULES)
-	cp mpd-dlna-yamaha-avr.py $(VENV)/bin/
+	cp mpd-mqtt-ir-bridge.py $(VENV)/bin/
 
 clean:
 	rm -rf $(VENV)
 
 run:
-	. $(VENV)/bin/activate && ./mpd-dlna-yamaha-avr.py
+	. $(VENV)/bin/activate && ./mpd-mqtt-ir-bridge.py
 
-export IMAGE=mpd-dlna-yamaha-avr
+export IMAGE=mpd-pulseaudio-mqtt-ir
 export BUILDTAG:=$(shell date +%Y%m%d.%H%M%S)
 export NAME=$(IMAGE)
 HELM_OPTS:=--set image.repository=$(DOCKER_REGISTRY)/$(IMAGE) --set image.tag=$(BUILDTAG) --set image.pullPolicy=Always
@@ -28,7 +28,8 @@ image:
 
 imagerun:
 	docker build -t $(IMAGE) .
-	docker run -p 6604:6600 -p 6603:6601 -v $(HOME)/Music/:/var/lib/mpd/music:ro -it $(IMAGE)
+	-docker stop $(IMAGE)
+	docker run -p 6605:6600 -v $(HOME)/Music/:/var/lib/mpd/music:ro -it --name $(IMAGE) --rm $(IMAGE)
 
 helm-install-dry:
 	helm install --dry-run --debug $(HELM_OPTS) --namespace=$(NAMESPACE) $(NAME) ./helm-chart

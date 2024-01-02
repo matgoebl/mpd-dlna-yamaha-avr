@@ -44,7 +44,7 @@ jobs:
 
       - name: Set version and output info
         run: |
-          VERSIONNUM=${VERSION#v}
+          VERSIONNUM=${VERSION#v}-mpd-pulseaudio-mqtt-ir
           echo "VERSIONNUM=$VERSIONNUM" >> $GITHUB_ENV
           for var in GITHUB_EVENT_NAME GITHUB_REF_TYPE GITHUB_REF GITHUB_SHA MERGE_COMMIT_SHA BUILD VERSION VERSIONNUM; do
             echo "- $var: ${!var}" >> $GITHUB_STEP_SUMMARY
