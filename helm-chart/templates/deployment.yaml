@@ -37,12 +37,16 @@ spec:
             - --config=/dev/null
             - --server.datadir=/var/lib/snapserver
             - --stream.source=pipe:///var/lib/snapserver/snapfifo?name=default
+            - --http.doc_root=/usr/share/snapserver/snapweb
           ports:
             - name: snap-stream
               containerPort: 1704
               protocol: TCP
             - name: snap-control
               containerPort: 1705
+              protocol: TCP
+            - name: snap-web
+              containerPort: 1780
               protocol: TCP
           volumeMounts:
             - mountPath: /var/lib/snapserver

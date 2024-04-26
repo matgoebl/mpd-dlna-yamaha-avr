@@ -19,5 +19,9 @@ spec:
       targetPort: snap-control
       protocol: TCP
       name: control
+    - port: {{ .Values.service.webport }}
+      targetPort: snap-web
+      protocol: TCP
+      name: snapweb
   selector:
     {{- include "mpd-dlna-yamaha-avr.selectorLabels" . | nindent 4 }}

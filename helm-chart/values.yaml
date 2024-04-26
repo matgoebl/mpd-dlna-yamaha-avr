@@ -45,6 +45,7 @@ service:
   port: 6600                          # External port of Music Player Daemon for clients.
   streamport: 6601                    # External port of SNAP Stream
   controlport: 6602                   # External port of SNAP Control
+  webport: 8080                       # External port of Snapweb Web Client
 
 mpd:
   persistentVolumeClaimName: ""       # Mount persistentVolumeClaim as music directory, playlists are expected as playlists/ subfolder there.

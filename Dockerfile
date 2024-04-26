@@ -1,7 +1,9 @@
 FROM python:3.10-slim-bookworm
 
 RUN apt-get update && apt-get -y upgrade
-RUN apt-get install -y --no-install-recommends mpd mpc git snapserver && rm -rf /var/lib/apt/
+RUN apt-get install -y --no-install-recommends mpd mpc git snapserver curl unzip && rm -rf /var/lib/apt/
+RUN curl -sL https://github.com/badaix/snapweb/releases/download/v0.7.0/snapweb.zip -o snapweb.zip &&\
+    unzip snapweb.zip -d /usr/share/snapserver/snapweb
 
 RUN groupadd --gid 10001 kubeuser && \
     groupadd --gid 10002 kubefs && \
@@ -17,6 +19,6 @@ COPY mpd-control-bridge.py entrypoint.sh /usr/bin/
 VOLUME /var/lib/mpd
 WORKDIR /var/lib/mpd
 USER 10001
-EXPOSE 6600 1704 1705
+EXPOSE 6600 1704 1705 1780
 
 CMD ["/usr/bin/entrypoint.sh"]
