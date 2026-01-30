@@ -27,6 +27,7 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
+        {{- if or (eq .Values.variant "mpd-dlna-yamaha-avr") (eq .Values.variant "mpd-pulseaudio-mqtt-ir") }}
         - name: control--{{ include "mpd-dlna-yamaha-avr.fullname" . }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
@@ -63,6 +64,35 @@ spec:
           {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+        {{- end }}
+        {{- if eq .Values.variant "mpd-snapcast" }}
+        - name: snapserver--{{ include "mpd-dlna-yamaha-avr.fullname" . }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /usr/bin/snapserver
+            - --config=/dev/null
+            - --server.datadir=/var/lib/snapserver
+            - --stream.source=pipe:///var/lib/snapserver/snapfifo?name=default
+            - --http.doc_root=/usr/share/snapserver/snapweb
+          ports:
+            - name: snap-stream
+              containerPort: 1704
+              protocol: TCP
+            - name: snap-control
+              containerPort: 1705
+              protocol: TCP
+            - name: snap-web
+              containerPort: 1780
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/lib/snapserver
+              name: snapdata
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+        {{- end }}
         - name: mpd--{{ include "mpd-dlna-yamaha-avr.fullname" . }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
@@ -97,14 +127,23 @@ spec:
             - name: music
               mountPath: "/var/lib/mpd/music"
               readOnly: true
+            {{- if eq .Values.variant "mpd-snapcast" }}
+            - name: snapdata
+              mountPath: /var/lib/snapserver
+            {{- end }}
       volumes:
         - name: music
-{{- if .Values.mpd.persistentVolumeClaimName }}
+        {{- if .Values.mpd.persistentVolumeClaimName }}
           persistentVolumeClaim:
             claimName: {{ .Values.mpd.persistentVolumeClaimName | quote }}
-{{- else }}
+        {{- else }}
           emptyDir: {}
-{{- end }}
+        {{- end }}
+        {{- if eq .Values.variant "mpd-snapcast" }}
+        - name: snapdata
+          emptyDir:
+            sizeLimit: 100Mi
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

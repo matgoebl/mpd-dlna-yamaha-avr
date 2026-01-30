@@ -17,5 +17,19 @@ spec:
       protocol: TCP
       name: stream
     {{- end }}
+    {{- if eq .Values.variant "mpd-snapcast" }}
+    - port: {{ .Values.service.streamport }}
+      targetPort: snap-stream
+      protocol: TCP
+      name: stream
+    - port: {{ .Values.service.controlport }}
+      targetPort: snap-control
+      protocol: TCP
+      name: control
+    - port: {{ .Values.service.webport }}
+      targetPort: snap-web
+      protocol: TCP
+      name: snapweb
+    {{- end }}
   selector:
     {{- include "mpd-dlna-yamaha-avr.selectorLabels" . | nindent 4 }}
