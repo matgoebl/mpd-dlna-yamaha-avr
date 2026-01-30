@@ -1,7 +1,7 @@
 # MPD-DLNA-Yamaha-AVR
 Streaming Music from Music Player Daemon to a Yamaha AVR Receiver via DLNA with Volume and Player Control.
 
-(c) 2022 matthias.goebl (at) goebl.net
+(c) 2022-2026 matthias.goebl (at) goebl.net
 
 Published under the Apache License Version 2.0
 
@@ -134,4 +134,12 @@ Add this snippet to /etc/mpd.conf:
             max_clients     "0"
             mixer_type      "null"
     }
+
+
+
+# MPD-PulseAudio-MQTT-IR
+
+This is a variant of mpd-dlna-yamaha-avr.
+
+It streams Music from Music Player Daemon to a PulseAudio Server with Amplifier Control via a MQTT-IR bridge.
 

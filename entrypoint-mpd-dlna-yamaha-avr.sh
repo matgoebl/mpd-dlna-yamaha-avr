@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # better use docker compose - but this is only for testing as I deploy into a kubernetes cluster
-/usr/bin/mpd --no-daemon --stdout /etc/mpd.conf &
+/usr/bin/mpd --no-daemon --stdout /etc/mpd-dlna-yamaha-avr.conf &
 
 export MPD_HOST=192.168.1.1
 export MPD_PORT=6600

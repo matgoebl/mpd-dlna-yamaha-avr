@@ -11,9 +11,11 @@ spec:
       targetPort: mpd
       protocol: TCP
       name: mpd
+    {{- if eq .Values.variant "mpd-dlna-yamaha-avr" }}
     - port: {{ .Values.service.streamport }}
       targetPort: stream
       protocol: TCP
       name: stream
+    {{- end }}
   selector:
     {{- include "mpd-dlna-yamaha-avr.selectorLabels" . | nindent 4 }}
