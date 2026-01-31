@@ -1,7 +1,7 @@
 # MPD-DLNA-Yamaha-AVR
 Streaming Music from Music Player Daemon to a Yamaha AVR Receiver via DLNA with Volume and Player Control.
 
-(c) 2022 matthias.goebl (at) goebl.net
+(c) 2022-2026 matthias.goebl (at) goebl.net
 
 Published under the Apache License Version 2.0
 
@@ -115,14 +115,14 @@ The following drawing shows the complete architecture:
 
 ## Daemon Usage
 
-Install mpd-dlna-yamaha-avr as system service starting e.g.
+Install [mpd-dlna-yamaha-avr](mpd-dlna-yamaha-avr.py) as system service starting e.g.
 
     mpd-dlna-yamaha-avr.py --mpd_host 192.168.1.1 --yamaha_host 192.168.1.10 --verbose
 
 
-### MPD configuration
+## MPD configuration
 
-Add this snippet to /etc/mpd.conf:
+Add this snippet to /etc/mpd.conf or use [mpd-dlna-yamaha-avr.conf](mpd-dlna-yamaha-avr.conf):
 
     audio_output {
             type            "httpd"
@@ -135,3 +135,27 @@ Add this snippet to /etc/mpd.conf:
             mixer_type      "null"
     }
 
+
+## Helm Chart
+
+The bundled helm chart can be used to deploy into a kubernetes cluster.
+See [values.yaml](helm-chart/values.yaml) for configuration.
+
+
+# Variants
+
+## MPD-PulseAudio-MQTT-IR
+
+This is a variant that streams Music from Music Player Daemon to a PulseAudio Server with Amplifier Control via a MQTT-IR bridge.
+
+See [mpd-mqtt-ir-bridge.py](mpd-mqtt-ir-bridge.py), [entrypoint-mpd-pulseaudio-mqtt-ir.sh](entrypoint-mpd-pulseaudio-mqtt-ir.sh) and [mpd-pulseaudio-mqtt-ir.conf](mpd-pulseaudio-mqtt-ir.conf).
+
+Enable it in the [helm chart](helm-chart/values.yaml) by setting `variant: mpd-pulseaudio-mqtt-ir`.
+
+## MPD-SnapCast
+
+This is another variant the streams Music from Music Player Daemon to a [SnapChat Server](https://github.com/snapcast/snapcast).
+
+It does not come with an additional control process, so its simple a deployment option.
+
+Enable it in the [helm chart](helm-chart/values.yaml) by setting `variant: mpd-snapcast`.

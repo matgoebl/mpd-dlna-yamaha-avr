@@ -85,6 +85,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            BUILDTAG=${{ env.VERSIONNUM }}
 
       - name: Create helm chart
         run: |

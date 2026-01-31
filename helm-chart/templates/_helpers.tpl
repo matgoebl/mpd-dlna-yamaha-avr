@@ -2,7 +2,7 @@
 Expand the name of the chart.
 */}}
 {{- define "mpd-dlna-yamaha-avr.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- default .Values.variant .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
@@ -14,7 +14,7 @@ If release name contains chart name it will be used as a full name.
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
-{{- $name := default .Chart.Name .Values.nameOverride }}
+{{- $name := default .Values.variant .Values.nameOverride }}
 {{- if contains $name .Release.Name }}
 {{- .Release.Name | trunc 63 | trimSuffix "-" }}
 {{- else }}

@@ -1,5 +1,9 @@
 VENV=.venv
-PYTHON_MODULES=python-musicpd git+https://github.com/wuub/rxv.git git+https://github.com/matgoebl/nano-dlna.git@dev
+PYTHON_MODULES=python-musicpd
+# for variant mpd-dlna-yamaha-avr:
+PYTHON_MODULES+=git+https://github.com/wuub/rxv.git git+https://github.com/matgoebl/nano-dlna.git@dev
+# for variant mpd-pulseaudio-mqtt-ir:
+PYTHON_MODULES+=paho-mqtt
 
 NAMESPACE=default
 
@@ -9,6 +13,7 @@ all: install
 install:
 	virtualenv $(VENV) --python=python3 && . $(VENV)/bin/activate && pip3 install $(PYTHON_MODULES)
 	cp mpd-dlna-yamaha-avr.py $(VENV)/bin/
+	cp mpd-mqtt-ir-bridge.py $(VENV)/bin/
 
 clean:
 	rm -rf $(VENV)
@@ -19,7 +24,11 @@ run:
 export IMAGE=mpd-dlna-yamaha-avr
 export BUILDTAG:=$(shell date +%Y%m%d.%H%M%S)
 export NAME=$(IMAGE)
-HELM_OPTS:=--set image.repository=$(DOCKER_REGISTRY)/$(IMAGE) --set image.tag=$(BUILDTAG) --set image.pullPolicy=Always
+# export VARIANT=mpd-dlna-yamaha-avr
+export VARIANT=mpd-pulseaudio-mqtt-ir
+# export VARIANT=mpd-snapcast
+export NAME=$(VARIANT)
+HELM_OPTS:=--set variant=$(VARIANT) --set image.repository=$(DOCKER_REGISTRY)/$(IMAGE) --set image.tag=$(BUILDTAG) --set image.pullPolicy=Always
 
 image:
 	docker build --build-arg BUILDTAG=$(BUILDTAG) -t $(IMAGE) .
@@ -27,7 +36,8 @@ image:
 	docker push $(DOCKER_REGISTRY)/$(IMAGE):$(BUILDTAG)
 
 imagerun:
-	docker build -t $(IMAGE) .
+	docker build -t $(IMAGE)
+	-docker stop $(IMAGE)
 	docker run -p 6604:6600 -p 6603:6601 -v $(HOME)/Music/:/var/lib/mpd/music:ro -it $(IMAGE)
 
 helm-install-dry:

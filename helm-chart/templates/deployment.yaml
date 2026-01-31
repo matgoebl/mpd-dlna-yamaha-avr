@@ -27,42 +27,94 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: dlna-yamaha-avr--{{ include "mpd-dlna-yamaha-avr.fullname" . }}
+        {{- if or (eq .Values.variant "mpd-dlna-yamaha-avr") (eq .Values.variant "mpd-pulseaudio-mqtt-ir") }}
+        - name: control--{{ include "mpd-dlna-yamaha-avr.fullname" . }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if eq .Values.variant "mpd-dlna-yamaha-avr" }}
           command: ["/usr/bin/mpd-dlna-yamaha-avr.py"]
+          {{- end }}
+          {{- if eq .Values.variant "mpd-pulseaudio-mqtt-ir" }}
+          command: ["/usr/bin/mpd-mqtt-ir-bridge.py"]
+          {{- end }}
           env:
+          - name: VERBOSE
+            value: "1"
           - name: MPD_HOST
             value: "127.0.0.1"
           - name: MPD_PORT
             value: "6600"
+          {{- if eq .Values.variant "mpd-dlna-yamaha-avr" }}
           - name: MPD_STREAM_HOSTPORT
             value: "{{ .Values.service.streamhostExternal }}:{{ .Values.service.streamport }}"
           - name: YAMAHA_HOST
             value: {{ .Values.yamaha.host | quote }}
-          - name: VERBOSE
-            value: "1"
           - name: MAX_VOLUME_DB
             value: {{ .Values.yamaha.maxVolumeDb | quote }}
           - name: SURROUND_PROGRAM
             value: {{ .Values.yamaha.surroundProgram | quote }}
+          {{- end }}
+          {{- if eq .Values.variant "mpd-pulseaudio-mqtt-ir" }}
+          - name: POWERON_VOLUME
+            value: {{ .Values.irbridge.poweron_volume | quote }}
+          - name: MQTT_CONFIG
+            value: {{ .Values.irbridge.mqtt_config | quote }}
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+        {{- end }}
+        {{- if eq .Values.variant "mpd-snapcast" }}
+        - name: snapserver--{{ include "mpd-dlna-yamaha-avr.fullname" . }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /usr/bin/snapserver
+            - --config=/dev/null
+            - --server.datadir=/var/lib/snapserver
+            - --stream.source=pipe:///var/lib/snapserver/snapfifo?name=default
+            - --http.doc_root=/usr/share/snapserver/snapweb
+          ports:
+            - name: snap-stream
+              containerPort: 1704
+              protocol: TCP
+            - name: snap-control
+              containerPort: 1705
+              protocol: TCP
+            - name: snap-web
+              containerPort: 1780
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/lib/snapserver
+              name: snapdata
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+        {{- end }}
         - name: mpd--{{ include "mpd-dlna-yamaha-avr.fullname" . }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["/usr/bin/mpd", "--no-daemon", "--stdout"]
+          command: ["/usr/bin/mpd", "--no-daemon", "--stdout", "/etc/{{ .Values.variant }}.conf"]
+          {{- if eq .Values.variant "mpd-pulseaudio-mqtt-ir" }}
+          env:
+          - name: PULSE_SERVER
+            value: {{ .Values.mpd.pulse_server | quote }}
+          - name: PULSE_SINK
+            value: {{ .Values.mpd.pulse_sink | quote }}
+          {{- end }}
           ports:
             - name: mpd
               containerPort: 6600
               protocol: TCP
+          {{- if eq .Values.variant "mpd-dlna-yamaha-avr" }}
             - name: stream
               containerPort: 6601
               protocol: TCP
+            {{- end }}
           livenessProbe:
             tcpSocket:
               port: mpd
@@ -75,14 +127,23 @@ spec:
             - name: music
               mountPath: "/var/lib/mpd/music"
               readOnly: true
+            {{- if eq .Values.variant "mpd-snapcast" }}
+            - name: snapdata
+              mountPath: /var/lib/snapserver
+            {{- end }}
       volumes:
         - name: music
-{{- if .Values.mpd.persistentVolumeClaimName }}
+        {{- if .Values.mpd.persistentVolumeClaimName }}
           persistentVolumeClaim:
             claimName: {{ .Values.mpd.persistentVolumeClaimName | quote }}
-{{- else }}
+        {{- else }}
           emptyDir: {}
-{{- end }}
+        {{- end }}
+        {{- if eq .Values.variant "mpd-snapcast" }}
+        - name: snapdata
+          emptyDir:
+            sizeLimit: 100Mi
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
