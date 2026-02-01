@@ -33,3 +33,21 @@ spec:
     {{- end }}
   selector:
     {{- include "mpd-dlna-yamaha-avr.selectorLabels" . | nindent 4 }}
+---
+{{- if .Values.mympd.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mpd-dlna-yamaha-avr.fullname" . }}-mympd
+  labels:
+    {{- include "mpd-dlna-yamaha-avr.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.service.mympdport }}
+      targetPort: mympd
+      protocol: TCP
+      name: mympd
+  selector:
+    {{- include "mpd-dlna-yamaha-avr.selectorLabels" . | nindent 4 }}
+{{- end }}
