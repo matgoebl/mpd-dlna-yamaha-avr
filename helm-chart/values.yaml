@@ -53,7 +53,24 @@ service:
   streamhostExternal: "127.0.0.1"     # External hostname/IP of Music Player Stream, that is sent to yamaha receiver for playback.
   # only variant mpd-snapcast:
   controlport: 6602                   # External port of SNAP Control
-  webport: 8080                       # External port of Snapweb Web Client
+  webport: 8000                       # External port of Snapweb Web Client
+  # only for myMPD:
+  mympdport: 8080                     # External port of myMPD
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /mympd
+          port: 8080
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
 
 mpd:
   persistentVolumeClaimName: ""       # Mount persistentVolumeClaim as music directory, playlists are expected as playlists/ subfolder there.
@@ -61,7 +78,6 @@ mpd:
   pulse_server: ""
   pulse_sink: ""
 
-# { {- if eq .Values.variant "mpd-dlna-yamaha-avr" } }
 # only variant mpd-dlna-yamaha-avr:
 yamaha:
   host: "127.0.0.1"                   # Hostname/IP of Yamaha AVR Receiver.
@@ -78,6 +94,19 @@ rescan:
   enabled: true
   hour: 3                             # Timezone is UTC
   minute: 17
+
+# Optional myMPD WebUI, see https://jcorporation.github.io/myMPD/ and https://github.com/jcorporation/myMPD
+mympd:
+  enabled: false
+  config:
+    # see https://jcorporation.github.io/myMPD/020-configuration/configuration-files.html
+    TZ: Europe/Berlin
+    MYMPD_LOGLEVEL: 6
+  image:
+    # see https://github.com/jcorporation/myMPD/pkgs/container/mympd%2Fmympd
+    repository: "ghcr.io/jcorporation/mympd/mympd"
+    pullPolicy: IfNotPresent
+    tag: "latest"
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

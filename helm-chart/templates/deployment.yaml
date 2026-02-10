@@ -27,6 +27,7 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
+
         {{- if or (eq .Values.variant "mpd-dlna-yamaha-avr") (eq .Values.variant "mpd-pulseaudio-mqtt-ir") }}
         - name: control--{{ include "mpd-dlna-yamaha-avr.fullname" . }}
           securityContext:
@@ -65,6 +66,7 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
         {{- end }}
+
         {{- if eq .Values.variant "mpd-snapcast" }}
         - name: snapserver--{{ include "mpd-dlna-yamaha-avr.fullname" . }}
           securityContext:
@@ -93,6 +95,7 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
         {{- end }}
+
         - name: mpd--{{ include "mpd-dlna-yamaha-avr.fullname" . }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
@@ -131,6 +134,45 @@ spec:
             - name: snapdata
               mountPath: /var/lib/snapserver
             {{- end }}
+
+        {{- if .Values.mympd.enabled }}
+        - name: mympd
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.mympd.image.repository }}:{{ .Values.mympd.image.tag }}"
+          imagePullPolicy: {{ .Values.mympd.image.pullPolicy }}
+          env:
+          - name: MYMPD_SSL
+            value: "false"
+          - name: MPD_HOST
+            value: "127.0.0.1"
+          - name: MPD_PORT
+            value: "6600"
+          {{- range $key, $value := .Values.mympd.config }}
+          - name: {{ $key }}
+            value: {{ $value | quote }}
+          {{- end }}
+          ports:
+            - name: mympd
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: mympd
+          readinessProbe:
+            tcpSocket:
+              port: mympd
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: mympd-run
+              mountPath: "/run/mpd"
+            - name: mympd-workdir
+              mountPath: /var/lib/mympd
+            - name: mympd-cachedir
+              mountPath: /var/cache/mympd
+        {{- end }}
+
       volumes:
         - name: music
         {{- if .Values.mpd.persistentVolumeClaimName }}
@@ -144,6 +186,18 @@ spec:
           emptyDir:
             sizeLimit: 100Mi
         {{- end }}
+        {{- if .Values.mympd.enabled }}
+        - name: mympd-run
+          emptyDir:
+            sizeLimit: 100Mi
+        - name: mympd-workdir
+          emptyDir:
+            sizeLimit: 100Mi
+        - name: mympd-cachedir
+          emptyDir:
+            sizeLimit: 100Mi
+        {{- end }}
+
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

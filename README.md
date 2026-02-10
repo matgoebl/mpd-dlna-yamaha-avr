@@ -140,6 +140,7 @@ Add this snippet to /etc/mpd.conf or use [mpd-dlna-yamaha-avr.conf](mpd-dlna-yam
 
 The bundled helm chart can be used to deploy into a kubernetes cluster.
 See [values.yaml](helm-chart/values.yaml) for configuration.
+It includes the [myMPD](https://jcorporation.github.io/myMPD/) WebUI.
 
 
 # Variants
