@@ -59,15 +59,15 @@ service:
 
 ingress:
   enabled: false
-  className: ""
-  annotations: {}
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /mympd
-          port: 8080
-          pathType: ImplementationSpecific
-  tls: []
+  # className: ""
+  # annotations: {}
+  # hosts:
+  #   - host: chart-example.local
+  #     paths:
+  #       - path: /mympd
+  #         port: 8080
+  #         pathType: Prefix
+  # tls: []
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
