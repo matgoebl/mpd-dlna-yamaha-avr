@@ -26,6 +26,7 @@ export BUILDTAG:=$(shell date +%Y%m%d.%H%M%S)
 export NAME=$(IMAGE)
 # export VARIANT=mpd-dlna-yamaha-avr
 export VARIANT=mpd-pulseaudio-mqtt-ir
+# export VARIANT=mpd-pipe-mqtt-ir
 # export VARIANT=mpd-snapcast
 export NAME=$(VARIANT)
 HELM_OPTS:=--set variant=$(VARIANT) --set image.repository=$(DOCKER_REGISTRY)/$(IMAGE) --set image.tag=$(BUILDTAG) --set image.pullPolicy=Always
@@ -36,7 +37,7 @@ image:
 	docker push $(DOCKER_REGISTRY)/$(IMAGE):$(BUILDTAG)
 
 imagerun:
-	docker build -t $(IMAGE)
+	docker build -t $(IMAGE) .
 	-docker stop $(IMAGE)
 	docker run -p 6604:6600 -p 6603:6601 -v $(HOME)/Music/:/var/lib/mpd/music:ro -it $(IMAGE)
 

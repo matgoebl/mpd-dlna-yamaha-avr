@@ -153,6 +153,14 @@ See [mpd-mqtt-ir-bridge.py](mpd-mqtt-ir-bridge.py), [entrypoint-mpd-pulseaudio-m
 
 Enable it in the [helm chart](helm-chart/values.yaml) by setting `variant: mpd-pulseaudio-mqtt-ir`.
 
+## mpd-pipe-mqtt-ir
+
+This is a variant that streams Music from Music Player Daemon to a Pipe Command as raw PCM with Amplifier Control via a MQTT-IR bridge.
+
+See [mpd-mqtt-ir-bridge.py](mpd-mqtt-ir-bridge.py), [entrypoint-mpd-pipe-mqtt-ir.sh](entrypoint-mpd-pipe-mqtt-ir.sh) and [mpd-pipe-mqtt-ir.conf](mpd-pipe-mqtt-ir.conf).
+
+Enable it in the [helm chart](helm-chart/values.yaml) by setting `variant: mpd-pipe-mqtt-ir`.
+
 ## MPD-SnapCast
 
 This is another variant the streams Music from Music Player Daemon to a [SnapChat Server](https://github.com/snapcast/snapcast).

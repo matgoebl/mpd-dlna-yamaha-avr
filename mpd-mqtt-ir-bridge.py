@@ -6,6 +6,7 @@ import os
 import time
 import logging
 import select
+import traceback
 
 import paho.mqtt.client as mqtt
 import ssl
@@ -49,9 +50,15 @@ def on_message(mqtt_client, userdata, message):
     logging.info(f"IR RECEIVED: {msg} {addr:05b}b/{addr:02x}h/{addr:02} {cmd:07b}b/{cmd:02x}h/{cmd:03}")
     # {"IrReceived":{"Protocol":"SONY","Bits":12,"Data":"0x481","DataLSB":"0x2081","Repeat":0}}
 
-def on_connect(mqtt_client, userdata, flags, result):
-    logging.info(f"MQTT CONNECTED ({result})")
+def on_connect(mqtt_client, userdata, flags, reason_code, properties=None):
+    logging.info(f"MQTT CONNECTED ({reason_code})")
     mqtt_client.subscribe(mqtt_recv_topic)
+
+def on_disconnect(mqtt_client, userdata, flags, reason_code, properties=None):
+    logging.warning(f"MQTT DISCONNECTED ({reason_code})")
+
+def on_subscribe(client, userdata, mid, reason_codes, properties):
+    logging.info(f"MQTT SUBSCRIBED ({reason_codes})")
 
 def hifi_off():
     logging.info(f"TASK: switching hifi off")
@@ -72,12 +79,15 @@ def hifi_on(poweron_volume = POWERON_VOLUME):
 def mqtt_connect(MQTT_CONFIG):
     global mqtt_client,mqtt_host,mqtt_port,mqtt_client_id,mqtt_user,mqtt_pass,mqtt_send_topic,mqtt_recv_topic
     mqtt_host,mqtt_port,mqtt_client_id,mqtt_user,mqtt_pass,mqtt_send_topic,mqtt_recv_topic = MQTT_CONFIG.split(',')
-    mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, mqtt_client_id)
+    mqtt_client_id = f"{mqtt_client_id}--{os.uname().nodename}-{os.getpid()}"
+    mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=mqtt_client_id)
     # mqtt_client.tls_set(ca_certs="mqtt-ca.crt",cert_reqs=ssl.CERT_NONE)
     mqtt_client.tls_set(cert_reqs=ssl.CERT_NONE)
     mqtt_client.username_pw_set(mqtt_user,mqtt_pass)
     mqtt_client.on_message=on_message
+    mqtt_client.on_subscribe=on_subscribe
     mqtt_client.on_connect = on_connect
+    mqtt_client.on_disconnect = on_disconnect
     mqtt_client.connect(mqtt_host,port=int(mqtt_port),keepalive=60)
     mqtt_client.loop()
 
@@ -116,25 +126,27 @@ def run_daemon(mpd_host, poweron_volume, mqtt_config):
             logging.info(f"Connecting to MQTT at {mqtt_config}...")
             mqtt_connect(mqtt_config)
 
-            fds = [client,mqtt_client.socket()]
-
             old_state = client.status()["state"]
             old_volume = 0 #client.getvol()["volume"]
 
             while True:
+                mqtt_socket = mqtt_client.socket()
+                if not mqtt_socket:
+                    raise RuntimeError("MQTT connection died")
+
                 logging.info(f"Now waiting for MPD event...")
 
-                # event = client.idle("player","mixer","output")
                 event = None
                 client.send_idle("player","mixer","output")
-                _read, _write, _exception = select.select(fds, [], [], 5)
-                _read_filenos = [ sock.fileno() for sock in _read ]
-                if client.fileno() in _read_filenos:
+                read_fds = [client.fileno(), mqtt_socket.fileno()]
+                write_fds = [mqtt_socket.fileno()] if mqtt_client.want_write() else []
+                _read, _write, _exception = select.select(read_fds, write_fds, [], 5)
+                if client.fileno() in _read:
                     logging.debug("Event from MPD")
                     event = client.fetch_idle()
                 else:
                     client.noidle()
-                if mqtt_client.socket().fileno() in _read_filenos:
+                if mqtt_socket.fileno() in _read:
                     logging.debug("Event from MQTT")
                 mqtt_client.loop()
 
@@ -163,8 +175,8 @@ def run_daemon(mpd_host, poweron_volume, mqtt_config):
             client.disconnect()
 
         except Exception as e:
-            logging.error(e)
-            time.sleep(3)
+            logging.error(f"{e}: {traceback.format_exc()}")
+            time.sleep(10)
 
 if __name__ == '__main__':
     main()
