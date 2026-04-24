@@ -4,6 +4,7 @@
 
 variant: mpd-dlna-yamaha-avr
 # variant: mpd-pulseaudio-mqtt-ir
+# variant: mpd-pipe-mqtt-ir
 # variant: mpd-snapcast
 
 image:
@@ -77,6 +78,9 @@ mpd:
   # only variant mpd-pulseaudio-mqtt-ir:
   pulse_server: ""
   pulse_sink: ""
+  # only variant mpd-pipe-mqtt-ir:
+  # e.g. pipeCommand: "netcat audiohost 1234"
+  pipeCommand: ""
 
 # only variant mpd-dlna-yamaha-avr:
 yamaha:

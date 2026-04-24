@@ -3,6 +3,7 @@ FROM python:3.10-slim-bookworm
 RUN apt-get update && apt-get -y upgrade
 RUN apt-get install -y --no-install-recommends mpd mpc git && \
     echo 'for variant mpd-pulseaudio-mqtt-ir:' && apt-get install -y --no-install-recommends pulseaudio-utils && \
+    echo 'for variant mpd-pipe-mqtt-ir:' && apt-get install -y --no-install-recommends netcat-openbsd && \
     echo 'for variant mpd-snapcast:' && apt-get install -y --no-install-recommends snapserver curl unzip && \
     rm -rf /var/lib/apt/
 
@@ -19,10 +20,10 @@ RUN mkdir -p /var/lib/mpd/data/ /var/lib/mpd/music/playlists/ && chown -R 10001 
 
 RUN pip3 install --no-cache-dir --no-build-isolation python-musicpd && \
     echo 'for variant mpd-dlna-yamaha-avr:' && pip3 install --no-cache-dir --no-build-isolation git+https://github.com/wuub/rxv.git git+https://github.com/matgoebl/nano-dlna.git@dev && \
-    echo 'for variant mpd-pulseaudio-mqtt-ir:' && pip3 install --no-cache-dir --no-build-isolation paho-mqtt
+    echo 'for variant mpd-pulseaudio-mqtt-ir and mpd-pipe-mqtt-ir:' && pip3 install --no-cache-dir --no-build-isolation paho-mqtt
 
-COPY mpd-dlna-yamaha-avr.conf mpd-pulseaudio-mqtt-ir.conf mpd-snapcast.conf /etc/
-COPY mpd-dlna-yamaha-avr.py entrypoint-mpd-dlna-yamaha-avr.sh mpd-mqtt-ir-bridge.py entrypoint-mpd-pulseaudio-mqtt-ir.sh /usr/bin/
+COPY mpd-dlna-yamaha-avr.conf mpd-pulseaudio-mqtt-ir.conf mpd-pipe-mqtt-ir.conf mpd-snapcast.conf /etc/
+COPY mpd-dlna-yamaha-avr.py entrypoint-mpd-dlna-yamaha-avr.sh mpd-mqtt-ir-bridge.py entrypoint-mpd-pulseaudio-mqtt-ir.sh entrypoint-mpd-pipe-mqtt-ir.sh /usr/bin/
 
 ARG BUILDTAG=unknown
 ENV BUILDTAG=${BUILDTAG}
@@ -33,7 +34,8 @@ WORKDIR /var/lib/mpd
 USER 10001
 # for variant mpd-dlna-yamaha-avr: 6600 6601
 # for variant mpd-pulseaudio-mqtt-ir: 6600
+# for variant mpd-pipe-mqtt-ir: 6600
 # for variant mpd-snapcast: 6600 1704 1705 1780
 EXPOSE 6600 6601 1704 1705 1780
 
-CMD ["/usr/bin/entrypoint-mpd-dlna-yamaha-avr.sh"]
+CMD ["/usr/bin/entrypoint-mpd-pipe-mqtt-ir.sh"]
